@@ -7,7 +7,7 @@ import ProviderAvailability from './components/ProviderAvailability';
 import Navigation from './components/Navigation';
 
 function App() {
-  const [currentView, setCurrentView] = useState<'provider-login' | 'provider-registration' | 'patient-login' | 'patient-registration' | 'provider-availability'>('provider-availability');
+  const [currentView, setCurrentView] = useState<'provider-login' | 'provider-registration' | 'patient-login' | 'patient-registration' | 'provider-availability'>('provider-login');
 
   // Handle URL parameters on component mount
   useEffect(() => {
@@ -38,14 +38,39 @@ function App() {
     setCurrentView(view);
   };
 
+  // Navigation functions for components
+  const handleNavigateToProviderLogin = () => {
+    setCurrentView('provider-login');
+  };
+
+  const handleNavigateToProviderRegistration = () => {
+    setCurrentView('provider-registration');
+  };
+
+  const handleNavigateToPatientLogin = () => {
+    setCurrentView('patient-login');
+  };
+
+  const handleNavigateToPatientRegistration = () => {
+    setCurrentView('patient-registration');
+  };
+
   return (
     <div className="App">
       <Navigation currentView={currentView} onViewChange={handleViewChange} />
       
-      {currentView === 'provider-registration' && <ProviderRegistration />}
-      {currentView === 'provider-login' && <ProviderLogin />}
-      {currentView === 'patient-login' && <PatientLogin />}
-      {currentView === 'patient-registration' && <PatientRegistration />}
+      {currentView === 'provider-registration' && (
+        <ProviderRegistration onNavigateToLogin={handleNavigateToProviderLogin} />
+      )}
+      {currentView === 'provider-login' && (
+        <ProviderLogin onNavigateToRegistration={handleNavigateToProviderRegistration} />
+      )}
+      {currentView === 'patient-login' && (
+        <PatientLogin onNavigateToRegistration={handleNavigateToPatientRegistration} />
+      )}
+      {currentView === 'patient-registration' && (
+        <PatientRegistration onNavigateToLogin={handleNavigateToPatientLogin} />
+      )}
       {currentView === 'provider-availability' && <ProviderAvailability />}
     </div>
   );
