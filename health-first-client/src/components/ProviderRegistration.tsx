@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { User, Mail, Phone, Shield, Building, GraduationCap, Stethoscope, CheckCircle } from 'lucide-react';
 import PhotoUpload from './PhotoUpload';
 import PasswordStrength from './PasswordStrength';
@@ -102,8 +103,8 @@ const ProviderRegistration: React.FC<ProviderRegistrationProps> = ({ onNavigateT
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(value) ? '' : 'Please enter a valid email address';
       case 'phone':
-        const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
-        return phoneRegex.test(value) ? '' : 'Please enter a valid phone number (XXX) XXX-XXXX';
+        // const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
+        // return phoneRegex.test(value) ? '' : 'Please enter a valid phone number (XXX) XXX-XXXX';
       case 'licenseNumber':
         return value.trim() ? '' : 'Medical license number is required';
       case 'password':
@@ -170,12 +171,69 @@ const ProviderRegistration: React.FC<ProviderRegistrationProps> = ({ onNavigateT
     }
 
     setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
+    setErrors({});
+
+    try {
+      // Prepare the request data according to API specification
+      const requestData = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone_number: formData.phone,
+        license_number: formData.licenseNumber,
+        specialization: formData.specialization,
+        years_of_experience: parseInt(formData.yearsExperience) || 0,
+        password: formData.password,
+        confirm_password: formData.confirmPassword,
+        clinic_address: {
+          street: formData.street,
+          city: formData.city,
+          state: formData.state,
+          zip: formData.zipCode
+        }
+      };
+
+      // Make API call
+      const response = await axios.post('http://192.168.0.49:5000/api/v1/provider/register', requestData, {
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // Handle successful registration
+      if (response.status === 200 || response.status === 201) {
+        setSubmitSuccess(true);
+        
+        // Store authentication token if provided
+        if (response.data.token) {
+          localStorage.setItem('authToken', response.data.token);
+        }
+        
+        // Store user data if provided
+        if (response.data.user) {
+          localStorage.setItem('userData', JSON.stringify(response.data.user));
+        }
+      }
+      
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      
+      // Handle different types of errors
+      if (error.response) {
+        // Server responded with error status
+        const errorMessage = error.response.data?.message || error.response.data?.detail || 'Registration failed. Please check your information and try again.';
+        setErrors({ general: errorMessage });
+      } else if (error.request) {
+        // Network error
+        setErrors({ general: 'Network error. Please check your connection and try again.' });
+      } else {
+        // Other errors
+        setErrors({ general: 'Registration failed. Please try again.' });
+      }
+    } finally {
       setIsSubmitting(false);
-      setSubmitSuccess(true);
-    }, 2000);
+    }
   };
 
   if (submitSuccess) {
@@ -510,6 +568,17 @@ const ProviderRegistration: React.FC<ProviderRegistrationProps> = ({ onNavigateT
               </div>
             </div>
           </div>
+
+          {/* General Error Display */}
+          {errors.general && (
+            <div className="border-t pt-6">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="text-sm text-red-600">
+                  {errors.general}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Submit Button */}
           <div className="border-t pt-6">

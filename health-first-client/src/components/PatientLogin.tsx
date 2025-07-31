@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { Heart, Mail, Phone, Lock, Eye, EyeOff, User, Shield, AlertCircle, CheckCircle, Loader2, HelpCircle } from 'lucide-react';
 
 interface PatientLoginFormData {
@@ -80,19 +81,62 @@ const PatientLogin: React.FC<PatientLoginProps> = ({ onNavigateToRegistration })
     setIsLoading(true);
     setErrors({});
 
-    // Simulate API call
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Prepare the request data
+      const requestData = {
+        identifier: formData.emailOrPhone,
+        password: formData.password,
+        remember_me: formData.rememberMe,
+        device_info: {
+          app_version: "1.0.0",
+          device_name: navigator.userAgent,
+          device_type: "web"
+        }
+      };
+
+      // Make API call
+      const response = await axios.post('http://192.168.0.49:5000/api/v1/patient/login', requestData, {
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // Handle successful login
+      if (response.status === 200) {
+        setIsSuccess(true);
+        
+        // Store authentication token if provided
+        if (response.data.token) {
+          localStorage.setItem('authToken', response.data.token);
+        }
+        
+        // Store user data if provided
+        if (response.data.user) {
+          localStorage.setItem('userData', JSON.stringify(response.data.user));
+        }
+        
+        setTimeout(() => {
+          // Redirect to patient dashboard
+          window.location.href = '/patient-dashboard';
+        }, 1500);
+      }
       
-      // Simulate success
-      setIsSuccess(true);
-      setTimeout(() => {
-        // Redirect to patient dashboard
-        window.location.href = '/patient-dashboard';
-      }, 1500);
+    } catch (error: any) {
+      console.error('Login error:', error);
       
-    } catch (error) {
-      setErrors({ general: 'Login failed. Please check your credentials and try again.' });
+      // Handle different types of errors
+      if (error.response) {
+        // Server responded with error status
+        const errorMessage = error.response.data?.message || error.response.data?.detail || 'Login failed. Please check your credentials and try again.';
+        setErrors({ general: errorMessage });
+      } else if (error.request) {
+        // Network error
+        setErrors({ general: 'Network error. Please check your connection and try again.' });
+      } else {
+        // Other errors
+        setErrors({ general: 'Login failed. Please check your credentials and try again.' });
+      }
     } finally {
       setIsLoading(false);
     }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { Heart, User, Mail, Phone, Calendar, MapPin, Shield, Camera, AlertCircle, CheckCircle, Loader2, HelpCircle, UserPlus } from 'lucide-react';
 import PhotoUpload from './PhotoUpload';
 import PasswordStrength from './PasswordStrength';
@@ -171,9 +172,9 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onNavigateToL
       newErrors.dateOfBirth = 'Date of birth is required';
     } else {
       const age = new Date().getFullYear() - new Date(formData.dateOfBirth).getFullYear();
-      if (age < 13) {
-        newErrors.dateOfBirth = 'You must be at least 13 years old to register';
-      }
+      // if (age < 13) {
+      //   newErrors.dateOfBirth = 'You must be at least 13 years old to register';
+      // }
     }
     if (!formData.gender) {
       newErrors.gender = 'Please select your gender';
@@ -246,16 +247,78 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onNavigateToL
     }
 
     setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
+    setErrors({});
+
+    try {
+      // Prepare the request data according to API specification
+      const requestData = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone_number: formData.phone,
+        date_of_birth: formData.dateOfBirth,
+        gender: formData.gender,
+        password: formData.password,
+        confirm_password: formData.confirmPassword,
+        address: {
+          street: formData.street,
+          city: formData.city,
+          state: formData.state,
+          zip: formData.zipCode
+        },
+        emergency_contact: {
+          name: formData.emergencyContactName,
+          phone: formData.emergencyContactPhone,
+          relationship: formData.emergencyContactRelationship
+        },
+        insurance_info: {
+          provider: "",
+          policy_number: ""
+        },
+        medical_history: []
+      };
+
+      // Make API call
+      const response = await axios.post('http://192.168.0.49:5000/api/v1/patient/register', requestData, {
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // Handle successful registration
+      if (response.status === 200 || response.status === 201) {
+        setIsSuccess(true);
+        
+        // Store authentication token if provided
+        if (response.data.token) {
+          localStorage.setItem('authToken', response.data.token);
+        }
+        
+        // Store user data if provided
+        if (response.data.user) {
+          localStorage.setItem('userData', JSON.stringify(response.data.user));
+        }
+      }
+      
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      
+      // Handle different types of errors
+      if (error.response) {
+        // Server responded with error status
+        const errorMessage = error.response.data?.message || error.response.data?.detail || 'Registration failed. Please check your information and try again.';
+        setErrors({ general: errorMessage });
+      } else if (error.request) {
+        // Network error
+        setErrors({ general: 'Network error. Please check your connection and try again.' });
+      } else {
+        // Other errors
+        setErrors({ general: 'Registration failed. Please try again.' });
+      }
+    } finally {
       setIsLoading(false);
-      setIsSuccess(true);
-      setTimeout(() => {
-        setIsSuccess(false);
-        // Reset form or redirect
-      }, 3000);
-    }, 2000);
+    }
   };
 
   const formatPhoneNumber = (value: string) => {

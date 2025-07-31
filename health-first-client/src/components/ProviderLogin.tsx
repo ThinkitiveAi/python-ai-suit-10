@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { Mail, Phone, Lock, Eye, EyeOff, User, Stethoscope, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 
 interface LoginFormData {
@@ -75,19 +76,57 @@ const ProviderLogin: React.FC<ProviderLoginProps> = ({ onNavigateToRegistration 
     setIsLoading(true);
     setErrors({});
 
-    // Simulate API call
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Prepare the request data
+      const requestData = {
+        identifier: formData.emailOrPhone,
+        password: formData.password,
+        remember_me: formData.rememberMe
+      };
+
+      // Make API call
+      const response = await axios.post('http://192.168.0.49:5000/api/v1/provider/login', requestData, {
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // Handle successful login
+      if (response.status === 200) {
+        setIsSuccess(true);
+        
+        // Store authentication token if provided
+        if (response.data.token) {
+          localStorage.setItem('authToken', response.data.token);
+        }
+        
+        // Store user data if provided
+        if (response.data.user) {
+          localStorage.setItem('userData', JSON.stringify(response.data.user));
+        }
+        
+        setTimeout(() => {
+          // Redirect to provider dashboard
+          window.location.href = '/provider-dashboard';
+        }, 1500);
+      }
       
-      // Simulate successful login
-      setIsSuccess(true);
-      setTimeout(() => {
-        // Redirect to dashboard (in real app)
-        console.log('Login successful, redirecting to dashboard...');
-      }, 1500);
+    } catch (error: any) {
+      console.error('Login error:', error);
       
-    } catch (error) {
-      setErrors({ general: 'Invalid credentials. Please try again.' });
+      // Handle different types of errors
+      if (error.response) {
+        // Server responded with error status
+        const errorMessage = error.response.data?.message || error.response.data?.detail || 'Login failed. Please check your credentials and try again.';
+        setErrors({ general: errorMessage });
+      } else if (error.request) {
+        // Network error
+        setErrors({ general: 'Network error. Please check your connection and try again.' });
+      } else {
+        // Other errors
+        setErrors({ general: 'Login failed. Please check your credentials and try again.' });
+      }
     } finally {
       setIsLoading(false);
     }
