@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Provider Registration</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 3px solid #ffc107;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffc107;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .info-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">HealthFirst Admin</div>
+            <p>Provider Registration Notification</p>
+        </div>
+        
+        <div class="content">
+            <h2>🆕 New Provider Registration</h2>
+            
+            <div class="info-box">
+                <strong>Action Required:</strong> A new healthcare provider has registered and requires verification.
+            </div>
+            
+            <p>A new provider has successfully registered on the HealthFirst platform. Please review their information and take appropriate action for verification.</p>
+            
+            <h3>Provider Details:</h3>
+            <table>
+                <tr>
+                    <th>Name</th>
+                    <td>Dr. {{ provider_name }}</td>
+                </tr>
+                <tr>
+                    <th>Email</th>
+                    <td>{{ provider_email }}</td>
+                </tr>
+                <tr>
+                    <th>Specialization</th>
+                    <td>{{ provider_specialization }}</td>
+                </tr>
+                <tr>
+                    <th>License Number</th>
+                    <td>{{ provider_license }}</td>
+                </tr>
+                <tr>
+                    <th>Registration Date</th>
+                    <td>{{ registration_date|date:"F j, Y g:i A" }}</td>
+                </tr>
+            </table>
+            
+            <h3>Next Steps:</h3>
+            <ul>
+                <li>Review the provider's credentials and documentation</li>
+                <li>Verify their license number with relevant authorities</li>
+                <li>Check their specialization and experience claims</li>
+                <li>Update their verification status in the admin panel</li>
+            </ul>
+            
+            <div style="text-align: center;">
+                <a href="{{ admin_url }}" class="btn">Review in Admin Panel</a>
+            </div>
+            
+            <div class="info-box">
+                <strong>Note:</strong> The provider's account is currently in "pending" status and they cannot access full platform features until verified.
+            </div>
+            
+            <p>This is an automated notification from the HealthFirst provider registration system.</p>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2024 HealthFirst Medical Services. All rights reserved.</p>
+            <p>This is an automated email sent to administrators.</p>
+        </div>
+    </div>
+</body>
+</html> 
