@@ -1,9 +1,9 @@
 import React from 'react';
-import { Stethoscope, Heart, Calendar } from 'lucide-react';
+import { Stethoscope, Heart, Calendar, Settings } from 'lucide-react';
 
 interface NavigationProps {
-  currentView: 'provider-login' | 'provider-registration' | 'patient-login' | 'patient-registration' | 'provider-availability';
-  onViewChange: (view: 'provider-login' | 'provider-registration' | 'patient-login' | 'patient-registration' | 'provider-availability') => void;
+  currentView: 'provider-login' | 'provider-registration' | 'patient-login' | 'patient-registration' | 'provider-availability' | 'provider-availability-module' | 'settings';
+  onViewChange: (view: 'provider-login' | 'provider-registration' | 'patient-login' | 'patient-registration' | 'provider-availability' | 'provider-availability-module' | 'settings') => void;
 }
 
 const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) => {
@@ -73,6 +73,30 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) =>
             >
               <Calendar className="w-3 h-3 inline mr-1" />
               Availability
+            </button>
+            
+            <button
+              onClick={() => onViewChange('provider-availability-module')}
+              className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                currentView === 'provider-availability-module'
+                  ? 'bg-purple-100 text-purple-700'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+            >
+              <Calendar className="w-3 h-3 inline mr-1" />
+              Availability Module
+            </button>
+            
+            <button
+              onClick={() => onViewChange('settings')}
+              className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                currentView === 'settings'
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+            >
+              <Settings className="w-3 h-3 inline mr-1" />
+              Settings
             </button>
           </div>
         </div>

@@ -4,10 +4,12 @@ import ProviderLogin from './components/ProviderLogin';
 import PatientLogin from './components/PatientLogin';
 import PatientRegistration from './components/PatientRegistration';
 import ProviderAvailability from './components/ProviderAvailability';
+import ProviderAvailabilityModule from './components/ProviderAvailabilityModule';
+import Settings from './components/Settings';
 import Navigation from './components/Navigation';
 
 function App() {
-  const [currentView, setCurrentView] = useState<'provider-login' | 'provider-registration' | 'patient-login' | 'patient-registration' | 'provider-availability'>('provider-login');
+  const [currentView, setCurrentView] = useState<'provider-login' | 'provider-registration' | 'patient-login' | 'patient-registration' | 'provider-availability' | 'provider-availability-module' | 'settings'>('provider-login');
 
   // Handle URL parameters on component mount
   useEffect(() => {
@@ -24,6 +26,10 @@ function App() {
       setCurrentView('patient-registration');
     } else if (viewParam === 'provider-availability') {
       setCurrentView('provider-availability');
+    } else if (viewParam === 'provider-availability-module') {
+      setCurrentView('provider-availability-module');
+    } else if (viewParam === 'settings') {
+      setCurrentView('settings');
     }
   }, []);
 
@@ -34,7 +40,7 @@ function App() {
     window.history.replaceState(null, '', `?${urlParams.toString()}`);
   }, [currentView]);
 
-  const handleViewChange = (view: 'provider-login' | 'provider-registration' | 'patient-login' | 'patient-registration' | 'provider-availability') => {
+  const handleViewChange = (view: 'provider-login' | 'provider-registration' | 'patient-login' | 'patient-registration' | 'provider-availability' | 'provider-availability-module' | 'settings') => {
     setCurrentView(view);
   };
 
@@ -72,6 +78,8 @@ function App() {
         <PatientRegistration onNavigateToLogin={handleNavigateToPatientLogin} />
       )}
       {currentView === 'provider-availability' && <ProviderAvailability />}
+      {currentView === 'provider-availability-module' && <ProviderAvailabilityModule />}
+      {currentView === 'settings' && <Settings onNavigateToLogin={handleNavigateToProviderLogin} />}
     </div>
   );
 }
